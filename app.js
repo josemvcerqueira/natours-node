@@ -1,77 +1,30 @@
-import fs from 'fs';
 import express from 'express';
+import morgan from 'morgan';
+
+import tourRouter from './routes/tour.routes';
+import userRouter from './routes/user.routes';
 
 const app = express();
 
+// 1 Migglewares
+if (process.env.NODE_ENV === 'development') app.use(morgan('tiny'));
+
 app.use(express.json());
 
-const port = 3000;
+app.use(express.static(`${__dirname}/public`));
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
-);
-
-app.get('/api/v1/tours', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
+app.use((req, res, next) => {
+  console.log('hello from the middleware 🙂');
+  next();
 });
 
-app.get('/api/v1/tours/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const tour = tours.find(el => el.id === id);
-
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'invalid ID',
-    });
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
 });
 
-app.post('/api/v1/tours', (req, res) => {
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = {
-    id: newId,
-    ...req.body,
-  };
+// Routes
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
-  const updatedTours = [...tours, newTour];
-
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(updatedTours),
-    error => {
-      if (error) {
-        res.status(404).json({
-          status: 'fail',
-          data: {
-            tour: error,
-          },
-        });
-      } else {
-        res.status(201).json({
-          status: 'success',
-          data: {
-            tour: newTour,
-          },
-        });
-      }
-    },
-  );
-});
-
-app.listen(port, () => {
-  console.log(`App running on port ${port}...`);
-});
+export default app;
