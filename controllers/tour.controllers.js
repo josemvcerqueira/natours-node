@@ -1,5 +1,12 @@
 import Tour from '../models/tour.model';
 
+export const aliasTopTours = async (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 export const getAllTours = async (req, res) => {
   try {
     // Build Query
@@ -30,6 +37,18 @@ export const getAllTours = async (req, res) => {
     } else {
       query = query.select('-__v');
     }
+
+    // 5) Pagination
+    const page = parseFloat(req.query.page) || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exist');
+    }
+
+    query = query.skip(skip).limit(limit);
 
     // Execute Query
     const tours = await query;
