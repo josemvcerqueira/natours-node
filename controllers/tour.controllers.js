@@ -6,6 +6,7 @@ import {
   paginateFeature,
 } from '../utils/api-features';
 import catchAsync from '../utils/catch-async';
+import AppError from '../utils/app-error';
 
 export const aliasTopTours = async (req, res, next) => {
   req.query.limit = '5';
@@ -47,22 +48,20 @@ export const getAllTours = catchAsync(async (req, res) => {
   });
 });
 
-export const getTour = async (req, res) => {
-  try {
-    const tour = await Tour.findById(req.params.id);
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: 'fail',
-      message: error,
-    });
+export const getTour = catchAsync(async (req, res, next) => {
+  const tour = await Tour.findById(req.params.id);
+
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
   }
-};
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour,
+    },
+  });
+});
 
 export const createTour = catchAsync(async (req, res) => {
   const newTour = await Tour.create(req.body);
@@ -74,11 +73,16 @@ export const createTour = catchAsync(async (req, res) => {
   });
 });
 
-export const updateTour = catchAsync(async (req, res) => {
+export const updateTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
+
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
@@ -92,8 +96,13 @@ export const updateTour = catchAsync(async (req, res) => {
   });
 });
 
-export const deleteTour = catchAsync(async (req, res) => {
-  await Tour.findByIdAndDelete(req.params.id);
+export const deleteTour = catchAsync(async (req, res, next) => {
+  const tour = await Tour.findByIdAndDelete(req.params.id);
+
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
+
   res.status(204).json({
     status: 'success',
     data: null,
@@ -172,10 +181,5 @@ export const getMonthlyPlan = catchAsync(async (req, res) => {
     data: {
       plan,
     },
-  });
-
-  res.status(404).json({
-    status: 'fail',
-    message: 'Failed',
   });
 });
