@@ -13,7 +13,7 @@
     "promise/no-native": "off",
     "promise/no-nesting": "error",
     "promise/no-promise-in-callback": "error",
-    "promise/no-callback-in-promise": "error",
+    "promise/no-callback-in-promise": "off",
     "promise/no-return-in-finally": "error",
     "prefer-arrow-callback": "error",
     "no-param-reassign": "off"
