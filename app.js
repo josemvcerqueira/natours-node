@@ -1,5 +1,10 @@
 import express from 'express';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import hpp from 'hpp';
 
 import tourRouter from './routes/tour.routes';
 import userRouter from './routes/user.routes';
@@ -8,11 +13,46 @@ import globalErrorHandler from './controllers/error.controllers';
 
 const app = express();
 
-// 1 Migglewares
+// Global Migglewares
+
+// Set security HTTP headers
+app.use(helmet());
+
+// Development logging
 if (process.env.NODE_ENV === 'development') app.use(morgan('tiny'));
 
-app.use(express.json());
+// Limit requests from the same API
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour',
+});
+app.use('/api', limiter);
 
+// Body parser, reading data from body into req.body
+app.use(express.json({ limit: '10kg' }));
+
+// Data sanitization against NoSQL query infection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Clean parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
+
+// Serving static files
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
