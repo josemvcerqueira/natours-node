@@ -8,6 +8,7 @@ import hpp from 'hpp';
 
 import tourRouter from './routes/tour.routes';
 import userRouter from './routes/user.routes';
+import reviewRouter from './routes/review.routes';
 import AppError from './utils/app-error';
 import globalErrorHandler from './controllers/error.controllers';
 
@@ -30,7 +31,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
-app.use(express.json({ limit: '10kg' }));
+app.use(express.json({ limit: '10kb' }));
 
 // Data sanitization against NoSQL query infection
 app.use(mongoSanitize());
@@ -63,6 +64,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
   // if you pass an arg to next it assumes its an error and skips all middleware
