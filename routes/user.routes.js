@@ -1,34 +1,34 @@
 import express from 'express';
 
-import * as userControllers from '../controllers/user.controllers';
-import * as authControllers from '../controllers/auth.controller';
+import * as userController from '../controllers/user.controllers';
+import * as authController from '../controllers/auth.controller';
 
 const router = express.Router();
 
-router.post('/signup', authControllers.signup);
-router.post('/signin', authControllers.signin);
+router.post('/signup', authController.signup);
+router.post('/signin', authController.signin);
 
-router.post('/forgotPassword', authControllers.forgotPassword);
-router.patch('/resetPassword/:token', authControllers.resetPassword);
+router.post('/forgotPassword', authController.forgotPassword);
+router.patch('/resetPassword/:token', authController.resetPassword);
 
 router.patch(
   '/updateMyPassword',
-  authControllers.protect,
-  authControllers.updatePassword,
+  authController.protect,
+  authController.updatePassword,
 );
 
-router.patch('/updateMe', authControllers.protect, userControllers.updateMe);
-router.delete('/deleteMe', authControllers.protect, userControllers.deleteMe);
+router.patch('/updateMe', authController.protect, userController.updateMe);
+router.delete('/deleteMe', authController.protect, userController.deleteMe);
 
 router
   .route('/')
-  .get(userControllers.getAllUsers)
-  .post(userControllers.createUser);
+  .get(userController.getAllUsers)
+  .post(userController.createUser);
 
 router
   .route('/:id')
-  .get(userControllers.getUser)
-  .patch(userControllers.updateUser)
-  .delete(userControllers.deleteUser);
+  .get(userController.getUser)
+  .patch(userController.updateUser)
+  .delete(userController.deleteUser);
 
 export default router;
