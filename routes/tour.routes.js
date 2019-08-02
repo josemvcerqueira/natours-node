@@ -1,10 +1,12 @@
 import express from 'express';
 
+import reviewRouter from './review.routes';
 import * as tourController from '../controllers/tour.controllers';
 import * as authController from '../controllers/auth.controller';
-import * as reviewControllers from '../controllers/review.controller';
 
 const router = express.Router();
+
+router.use('/:tourId/reviews', reviewRouter);
 
 router.route('/tour-stats').get(tourController.getTourStats);
 router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
@@ -26,14 +28,6 @@ router
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour,
-  );
-
-router
-  .route('/:tourId/reviews')
-  .post(
-    authController.protect,
-    authController.restrictTo('user'),
-    reviewControllers.createReview,
   );
 
 export default router;

@@ -1,8 +1,12 @@
 import Review from '../models/review.model';
 import catchAsync from '../utils/catch-async';
+import * as factory from './handler.factory';
 
 export const getAllReviews = catchAsync(async (req, res) => {
-  const reviews = await Review.find();
+  let filter = {};
+  if (req.params.tourId) filter = { tour: req.params.tourId };
+
+  const reviews = await Review.find(filter);
 
   res.status(200).json({
     status: 'success',
@@ -27,3 +31,5 @@ export const createReview = catchAsync(async (req, res) => {
     },
   });
 });
+
+export const deleteReview = factory.deleteOne(Review);

@@ -1,6 +1,7 @@
 import User from '../models/user.model';
 import catchAsync from '../utils/catch-async';
 import AppError from '../utils/app-error';
+import * as factory from './handler.factory';
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -79,9 +80,4 @@ export const updateUser = (req, res) => {
   });
 };
 
-export const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
+export const deleteUser = factory.deleteOne(User);
