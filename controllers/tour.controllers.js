@@ -1,12 +1,5 @@
 import Tour from '../models/tour.model';
-import {
-  filterFeature,
-  sortFeature,
-  limitFeature,
-  paginateFeature,
-} from '../utils/api-features';
 import catchAsync from '../utils/catch-async';
-import AppError from '../utils/app-error';
 import * as factory from './handler.factory';
 
 export const aliasTopTours = async (req, res, next) => {
@@ -16,54 +9,8 @@ export const aliasTopTours = async (req, res, next) => {
   next();
 };
 
-export const getAllTours = catchAsync(async (req, res) => {
-  function Features(query, queryString) {
-    const feature = {
-      query,
-      queryString,
-    };
-
-    return Object.assign(
-      feature,
-      filterFeature(feature),
-      sortFeature(feature),
-      limitFeature(feature),
-      paginateFeature(feature),
-    );
-  }
-
-  const features = new Features(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  const tours = await features.query;
-
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
-export const getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews');
-
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-
+export const getAllTours = factory.getAll(Tour);
+export const getTour = factory.getOne(Tour, { path: 'reviews' });
 export const createTour = factory.createOne(Tour);
 export const updateTour = factory.updateOne(Tour);
 export const deleteTour = factory.deleteOne(Tour);
