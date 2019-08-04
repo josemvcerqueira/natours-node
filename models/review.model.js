@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Tour from './tour.model';
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -32,6 +33,8 @@ const reviewSchema = new mongoose.Schema(
   },
 );
 
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 reviewSchema.pre(/^find/, function(next) {
   this.populate({
     path: 'user',
@@ -40,10 +43,42 @@ reviewSchema.pre(/^find/, function(next) {
   next();
 });
 
+reviewSchema.statics.calcAverageRatings = async function(tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  if (stats.length) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
+};
+
+reviewSchema.post('save', function() {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+reviewSchema.post(/^findOneAnd/, async function(doc) {
+  await doc.constructor.calcAverageRatings(doc.tour);
+});
+
 const Review = mongoose.model('Review', reviewSchema);
 
 export default Review;
-
-// POST / tour / 234fad4/reviews
-// GET / tour / 234fad4/reviews
-// GET / tour / 234fad4/reviews/94837dh
