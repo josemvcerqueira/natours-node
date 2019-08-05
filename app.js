@@ -7,6 +7,8 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import tourRouter from './routes/tour.routes';
 import userRouter from './routes/user.routes';
@@ -28,6 +30,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Set security HTTP headers
 app.use(helmet());
 
+app.use(
+  cors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+  }),
+);
+
 // Development logging
 if (process.env.NODE_ENV === 'development') app.use(morgan('tiny'));
 
@@ -41,6 +50,7 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query infection
 app.use(mongoSanitize());
@@ -64,6 +74,7 @@ app.use(
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.cookies);
   next();
 });
 
