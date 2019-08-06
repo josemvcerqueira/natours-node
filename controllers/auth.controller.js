@@ -75,15 +75,15 @@ export const signin = catchAsync(async (req, res, next) => {
 });
 
 export const protect = catchAsync(async (req, res, next) => {
-  let token;
   // 1) Getting the token and check if it exists
+  let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     // eslint-disable-next-line prefer-destructuring
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
+  } else if (req.cookies.jwt && req.cookies.jwt !== 'loggedout') {
     token = req.cookies.jwt;
   }
 
@@ -94,7 +94,7 @@ export const protect = catchAsync(async (req, res, next) => {
   try {
     decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   } catch (error) {
-    return AppError('JWT verification failed');
+    return new AppError('JWT verification failed');
   }
 
   // 3) Check if user still exists
@@ -110,6 +110,7 @@ export const protect = catchAsync(async (req, res, next) => {
 
   // Grants access to the protected Route
   req.user = currentUser;
+  res.locals.user = currentUser;
   next();
 });
 
