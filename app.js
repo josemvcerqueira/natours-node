@@ -13,6 +13,7 @@ import cookieParser from 'cookie-parser';
 import tourRouter from './routes/tour.routes';
 import userRouter from './routes/user.routes';
 import reviewRouter from './routes/review.routes';
+import bookingRouter from './routes/booking.routes';
 import viewRouter from './routes/view.routes';
 import AppError from './utils/app-error';
 import globalErrorHandler from './controllers/error.controllers';
@@ -82,6 +83,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 app.all('*', (req, res, next) => {
   // if you pass an arg to next it assumes its an error and skips all middleware
