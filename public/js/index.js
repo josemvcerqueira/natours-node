@@ -4,6 +4,7 @@ import '@babel/polyfill';
 import { login, logout } from './login';
 import displayMap from './mapbox';
 import updateSettings from './updateSettings';
+import { bookTour } from './stripe';
 
 // DOM ELEMENTS
 const mapBox = document.querySelector('#map');
@@ -11,6 +12,7 @@ const loginForm = document.querySelector('#login');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-settings');
+const bookBtn = document.querySelector('#book-tour');
 
 // DELEGATION
 if (mapBox) {
@@ -18,18 +20,17 @@ if (mapBox) {
   displayMap(locations);
 }
 
-if (loginForm) {
+if (loginForm)
   loginForm.addEventListener('submit', event => {
     event.preventDefault();
     const email = document.querySelector('#email').value;
     const password = document.querySelector('#password').value;
     login(email, password);
   });
-}
 
 if (logOutBtn) logOutBtn.addEventListener('click', logout);
 
-if (userDataForm) {
+if (userDataForm)
   userDataForm.addEventListener('submit', event => {
     event.preventDefault();
     const form = new FormData();
@@ -38,7 +39,6 @@ if (userDataForm) {
     form.append('photo', document.querySelector('#photo').files[0]);
     updateSettings(form, 'data');
   });
-}
 
 if (userPasswordForm) {
   userPasswordForm.addEventListener('submit', async event => {
@@ -58,3 +58,11 @@ if (userPasswordForm) {
     document.querySelector('#password-confirm').value = '';
   });
 }
+
+if (bookBtn)
+  bookBtn.addEventListener('click', async event => {
+    event.target.textContent = 'Processing...';
+    const { tourId } = event.target.dataset;
+    await bookTour(tourId);
+    event.target.textContent = 'Booked!';
+  });

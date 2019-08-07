@@ -3,7 +3,8 @@ include _review.mixin.pug
 
 block append head
     script(src='https://api.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.js')
-    link( rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.css')
+    link(rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.css')
+    script(src='https://js.stripe.com/v3/')
 
 mixin overviewBox(label, text, icon)
     .overview-box__detail
@@ -82,4 +83,7 @@ block content
             .cta__content
                 h2.heading-secondary What are you waiting for?
                 p.cta__text= `${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!`
-                button.btn.btn--green.span-al Book Tour Now!
+                if user
+                    button.btn.btn--green.span-al#book-tour(data-tour-id=`${tour.id}`) Book Tour Now!
+                else
+                    a.btn.btn--green.span-al(href='/signin') Log in to book tour
