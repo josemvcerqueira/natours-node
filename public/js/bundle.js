@@ -8511,6 +8511,9 @@ function () {
 
             if (res.data.status === 'success') {
               (0, _alert.showAlert)('success', "".concat(type.toUpperCase(), " updated successfully!"));
+              window.setTimeout(function () {
+                location.reload();
+              }, 1000);
             }
 
             _context.next = 11;
@@ -8831,12 +8834,11 @@ if (logOutBtn) logOutBtn.addEventListener('click', _login.logout);
 if (userDataForm) {
   userDataForm.addEventListener('submit', function (event) {
     event.preventDefault();
-    var name = document.querySelector('#name').value;
-    var email = document.querySelector('#email').value;
-    (0, _updateSettings.default)({
-      name: name,
-      email: email
-    }, 'data');
+    var form = new FormData();
+    form.append('name', document.querySelector('#name').value);
+    form.append('email', document.querySelector('#email').value);
+    form.append('photo', document.querySelector('#photo').files[0]);
+    (0, _updateSettings.default)(form, 'data');
   });
 }
 
@@ -8911,7 +8913,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63090" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49810" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
