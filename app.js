@@ -9,6 +9,7 @@ import xss from 'xss-clean';
 import hpp from 'hpp';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 
 import tourRouter from './routes/tour.routes';
 import userRouter from './routes/user.routes';
@@ -72,6 +73,8 @@ app.use(
     ],
   }),
 );
+
+app.use(compression());
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
