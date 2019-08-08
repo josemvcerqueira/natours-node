@@ -1,4 +1,5 @@
 import Tour from '../models/tour.model';
+import Booking from '../models/booking.model';
 import catchAsync from '../utils/catch-async';
 import AppError from '../utils/app-error';
 
@@ -39,3 +40,16 @@ export const getAccount = (req, res) => {
     title: 'Your account',
   });
 };
+
+export const getMyTours = catchAsync(async (req, res) => {
+  // 1) Find all bookings
+  const bookings = await Booking.find({ user: req.user.id });
+  // 2) Find tours with returned IDs
+  const tourIds = bookings.map(el => el.tour);
+  const tours = await Tour.find({ _id: { $in: tourIds } });
+
+  res.status(200).render('overview', {
+    title: 'My Tours',
+    tours,
+  });
+});
